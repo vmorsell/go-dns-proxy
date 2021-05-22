@@ -7,11 +7,11 @@ import (
 )
 
 type ErrNotFound struct {
-	key string
+	Key string
 }
 
 func (e ErrNotFound) Error() string {
-	return fmt.Sprintf("%s not found", e.key)
+	return fmt.Sprintf("%s not found", e.Key)
 }
 
 func (c *cache) Get(key string) (*dns.Msg, error) {
