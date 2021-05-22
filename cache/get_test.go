@@ -18,17 +18,24 @@ func TestGet(t *testing.T) {
 		{
 			name: "not found",
 			msgs: map[string]*dns.Msg{
-				"other.se": {},
+				"other.se": {Question: []dns.Question{
+					{Name: "other.se"},
+				}},
 			},
 			key: "x",
-			err: errNotFound("x"),
+			err: ErrNotFound{"x"},
 		},
 		{
 			name: "ok",
 			msgs: map[string]*dns.Msg{
-				"x": {},
+				"x": {Question: []dns.Question{
+					{Name: "x"},
+				}},
 			},
-			res: &dns.Msg{},
+			key: "x",
+			res: &dns.Msg{Question: []dns.Question{
+				{Name: "x"},
+			}},
 		},
 	}
 

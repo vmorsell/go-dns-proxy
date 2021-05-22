@@ -6,16 +6,20 @@ import (
 	"github.com/miekg/dns"
 )
 
-var (
-	errNotFound = func(key string) error { return fmt.Errorf("not found: %s", key) }
-)
+type ErrNotFound struct {
+	key string
+}
+
+func (e ErrNotFound) Error() string {
+	return fmt.Sprintf("%s not found", e.key)
+}
 
 func (c *cache) Get(key string) (*dns.Msg, error) {
 	c.mu.RLock()
 	res, ok := c.msgs[key]
 	c.mu.RUnlock()
 	if !ok {
-		return nil, errNotFound(key)
+		return nil, ErrNotFound{key}
 	}
 	return res, nil
 }
