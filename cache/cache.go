@@ -9,6 +9,7 @@ import (
 type Cache interface {
 	Get(key string) (*dns.Msg, error)
 	Set(key string, msg *dns.Msg) error
+	Key(msg *dns.Msg) (string, error)
 }
 
 type cache struct {
