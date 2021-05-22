@@ -15,7 +15,8 @@ const (
 )
 
 func main() {
-	proxy := NewProxy(dnsServer)
+	cache := NewCache()
+	proxy := NewProxy(dnsServer, cache)
 
 	dns.HandleFunc(".", proxy.handler)
 	go proxy.start("tcp", port)
