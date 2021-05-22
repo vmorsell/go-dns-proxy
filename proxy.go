@@ -7,14 +7,15 @@ import (
 	"time"
 
 	"github.com/miekg/dns"
+	"github.com/vmorsell/go-dns-proxy/cache"
 )
 
 type Proxy struct {
 	server string
-	cache  *Cache
+	cache  cache.Cache
 }
 
-func NewProxy(server string, cache *Cache) *Proxy {
+func NewProxy(server string, cache cache.Cache) *Proxy {
 	return &Proxy{
 		server: server,
 		cache:  cache,
@@ -42,7 +43,7 @@ func (p *Proxy) handler(w dns.ResponseWriter, r *dns.Msg) {
 	}
 
 	if strat != CACHE {
-		p.cache.add(getCacheKey(r), res)
+		p.cache.Set(getCacheKey(r), res)
 	}
 
 	for _, rec := range res.Answer {
@@ -89,7 +90,8 @@ func (p *Proxy) resolveFromCache(r *dns.Msg) *dns.Msg {
 		return nil
 	}
 	log.Printf("checking cache...")
-	return p.cache.query(getCacheKey(r))
+	res, _ := p.cache.Get(getCacheKey(r)) // todo(vm): handle errors
+	return res
 }
 
 func (p *Proxy) resolveFromServer(r *dns.Msg) (*dns.Msg, error) {

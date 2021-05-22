@@ -7,6 +7,7 @@ import (
 	"syscall"
 
 	"github.com/miekg/dns"
+	"github.com/vmorsell/go-dns-proxy/cache"
 )
 
 const (
@@ -15,7 +16,7 @@ const (
 )
 
 func main() {
-	cache := NewCache()
+	cache := cache.New()
 	proxy := NewProxy(dnsServer, cache)
 
 	dns.HandleFunc(".", proxy.handler)
