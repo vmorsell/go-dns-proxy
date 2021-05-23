@@ -23,7 +23,7 @@ func TestGet(t *testing.T) {
 				}},
 			},
 			key: "x",
-			err: ErrNotFound{"x"},
+			err: ErrNotFound,
 		},
 		{
 			name: "ok",

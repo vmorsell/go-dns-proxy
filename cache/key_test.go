@@ -17,7 +17,7 @@ func TestKey(t *testing.T) {
 		{
 			name: "no questions in message",
 			r:    &dns.Msg{},
-			err:  ErrNoQuestions{},
+			err:  ErrNoQuestions,
 		},
 		{
 			name: "ok - one question",
