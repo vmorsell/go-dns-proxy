@@ -1,6 +1,10 @@
 package blocker
 
-import "sync"
+import (
+	"sync"
+
+	"github.com/miekg/dns"
+)
 
 type Blocker interface {
 	AddIP(ip string) error
@@ -8,6 +12,7 @@ type Blocker interface {
 	AddHostsFiles(urls ...string) error
 	IsIPBlocked(ip string) bool
 	IsHostBlocked(host string) bool
+	GetBlockedReply(r *dns.Msg) *dns.Msg
 }
 
 type blocker struct {
