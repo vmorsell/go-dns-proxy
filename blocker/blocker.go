@@ -4,6 +4,7 @@ import "sync"
 
 type Blocker interface {
 	AddIP(ip string) error
+	AddHost(host string) error
 }
 
 type blocker struct {
