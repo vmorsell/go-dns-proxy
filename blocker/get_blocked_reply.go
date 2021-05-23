@@ -19,5 +19,6 @@ func (b *blocker) GetBlockedReply(r *dns.Msg) *dns.Msg {
 	}
 	a := &dns.A{Hdr: rrHeader, A: ip}
 	m.Answer = append(m.Answer, a)
+	m.RecursionAvailable = true
 	return m
 }
