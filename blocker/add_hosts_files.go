@@ -39,19 +39,14 @@ func (b *blocker) addHostsFile(s *bufio.Scanner) error {
 	}
 
 	for s.Scan() {
-		ip, host, err := parseLine(s.Text())
+		host, err := parseLine(s.Text())
 		if err != nil {
-			if errors.Is(err, ErrPatternNotFound) {
+			if errors.Is(err, errNoHostInLine) {
 				continue
 			}
 			return fmt.Errorf("parse: %w", err)
 		}
-		if ip != nil {
-			b.AddIP(*ip)
-		}
-		if host != nil {
-			b.AddHost(*host)
-		}
+		b.AddHost(host)
 	}
 	if err := s.Err(); err != nil {
 		return fmt.Errorf("scanner: %w", err)
@@ -59,37 +54,15 @@ func (b *blocker) addHostsFile(s *bufio.Scanner) error {
 	return nil
 }
 
-var ErrPatternNotFound = fmt.Errorf("pattern not found")
+var errNoHostInLine = fmt.Errorf("no host in line")
 
-func parseLine(line string) (*string, *string, error) {
+func parseLine(line string) (string, error) {
 	line = strings.TrimSpace(line)
-	re := regexp.MustCompile(`^((?:[0-9]{1,3}\.){3}[0-9]{1,3})\s+([a-z0-9\-_\.]+)`)
+	re := regexp.MustCompile(`^(?:[0-9]{1,3}\.){3}[0-9]{1,3}\s+([a-z0-9\-_\.]+)`)
 	res := re.FindStringSubmatch(line)
 
-	if len(res) != 3 {
-		return nil, nil, ErrPatternNotFound
+	if len(res) != 2 {
+		return "", errNoHostInLine
 	}
-
-	ip := &res[1]
-	host := &res[2]
-
-	if ipIsIgnored(ip) {
-		ip = nil
-	}
-
-	return ip, host, nil
-}
-
-func ipIsIgnored(ip *string) bool {
-	if ip == nil {
-		return true
-	}
-
-	ignore := []string{"0.0.0.0", "127.0.0.1"}
-	for _, ii := range ignore {
-		if ii == *ip {
-			return true
-		}
-	}
-	return false
+	return res[1], nil
 }
