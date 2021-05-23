@@ -51,11 +51,6 @@ func TestParseLine(t *testing.T) {
 		err  error
 	}{
 		{
-			name: "pattern not found",
-			line: "x",
-			err:  errNoHostInLine,
-		},
-		{
 			name: "full line commented",
 			line: "   # 1.2.3.4 host.se",
 			err:  errNoHostInLine,
@@ -66,8 +61,13 @@ func TestParseLine(t *testing.T) {
 			err:  errNoHostInLine,
 		},
 		{
-			name: "ok",
+			name: "ok - with leading IP address",
 			line: "1.2.3.4 host.se",
+			host: "host.se",
+		},
+		{
+			name: "ok - without leading IP address",
+			line: "host.se",
 			host: "host.se",
 		},
 		{

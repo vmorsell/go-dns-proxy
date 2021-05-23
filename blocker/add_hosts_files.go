@@ -58,7 +58,7 @@ var errNoHostInLine = fmt.Errorf("no host in line")
 
 func parseLine(line string) (string, error) {
 	line = strings.TrimSpace(line)
-	re := regexp.MustCompile(`^(?:[0-9]{1,3}\.){3}[0-9]{1,3}\s+([a-z0-9\-_\.]+)`)
+	re := regexp.MustCompile(`^(?:\s*[0-9\.]{7,}\s+)?([a-zA-Z0-9-_\.]+\.[a-zA-Z][a-zA-Z0-9-]*[a-zA-Z0-9]).*$`)
 	res := re.FindStringSubmatch(line)
 
 	if len(res) != 2 {
