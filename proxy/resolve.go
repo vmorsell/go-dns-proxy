@@ -10,8 +10,7 @@ import (
 )
 
 var (
-	ErrNoQuestion    = fmt.Errorf("no question in message")
-	ErrHostIsBlocked = fmt.Errorf("host is blocked")
+	ErrNoQuestion = fmt.Errorf("no question in message")
 )
 
 func (p *proxy) Resolve(r *dns.Msg) (*dns.Msg, ResolveStrategy, error) {
@@ -22,7 +21,7 @@ func (p *proxy) Resolve(r *dns.Msg) (*dns.Msg, ResolveStrategy, error) {
 	for _, q := range r.Question {
 		if p.blocker.IsHostBlocked(q.Name[:len(q.Name)-1]) {
 			m := p.blocker.GetBlockedReply(r)
-			return m, BLOCKER, ErrHostIsBlocked
+			return m, BLOCKER, nil
 		}
 	}
 
