@@ -12,7 +12,7 @@ func TestAddHostsFile(t *testing.T) {
 	tests := []struct {
 		name string
 		s    *bufio.Scanner
-		host string
+		n    int
 		err  error
 	}{
 		{
@@ -22,7 +22,7 @@ func TestAddHostsFile(t *testing.T) {
 		{
 			name: "ok",
 			s:    bufio.NewScanner(strings.NewReader("0.0.0.0 host.se")),
-			host: "host.se",
+			n:    1,
 		},
 	}
 
@@ -32,13 +32,9 @@ func TestAddHostsFile(t *testing.T) {
 				ips:   make(map[string]struct{}),
 				hosts: make(map[string]struct{}),
 			}
-			err := b.addHostsFile(tt.s)
+			n, err := b.addHostsFile(tt.s)
+			require.Equal(t, tt.n, n)
 			require.Equal(t, tt.err, err)
-
-			if tt.host != "" {
-				res := b.IsHostBlocked(tt.host)
-				require.True(t, res)
-			}
 		})
 	}
 }

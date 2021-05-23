@@ -14,7 +14,13 @@ import (
 func (b *blocker) AddHostsFiles(urls ...string) error {
 	start := time.Now()
 
-	for _, url := range urls {
+	nFiles := 0
+	nHosts := 0
+
+	log.Print("Adding hosts from files...")
+	for i, url := range urls {
+		log.Printf("[%d / %d] %s...", i+1, len(urls), url)
+
 		resp, err := http.Get(url)
 		if err != nil {
 			return fmt.Errorf("get: %w", err)
@@ -22,20 +28,30 @@ func (b *blocker) AddHostsFiles(urls ...string) error {
 		defer resp.Body.Close()
 
 		s := bufio.NewScanner(resp.Body)
-		if err := b.addHostsFile(s); err != nil {
-			return err
+		n, err := b.addHostsFile(s)
+		if err != nil {
+			log.Printf("add hosts files: %s", err.Error())
+			if n == 0 {
+				// Report even partly processed files
+				continue
+			}
 		}
+		nFiles++
+		nHosts += n
+
 	}
 
-	log.Printf("Blocked from %d hostsfiles in %f s", len(urls), time.Since(start).Seconds())
+	log.Printf("Blocked %d hosts from %d files in %f s", nHosts, nFiles, time.Since(start).Seconds())
 	return nil
 }
 
 var errScannerIsNil = fmt.Errorf("scanner is nil")
 
-func (b *blocker) addHostsFile(s *bufio.Scanner) error {
+func (b *blocker) addHostsFile(s *bufio.Scanner) (int, error) {
+	n := 0
+
 	if s == nil {
-		return errScannerIsNil
+		return n, errScannerIsNil
 	}
 
 	for s.Scan() {
@@ -44,14 +60,15 @@ func (b *blocker) addHostsFile(s *bufio.Scanner) error {
 			if errors.Is(err, errNoHostInLine) {
 				continue
 			}
-			return fmt.Errorf("parse: %w", err)
+			return n, fmt.Errorf("parse: %w", err)
 		}
 		b.AddHost(host)
+		n++
 	}
 	if err := s.Err(); err != nil {
-		return fmt.Errorf("scanner: %w", err)
+		return n, fmt.Errorf("scanner: %w", err)
 	}
-	return nil
+	return n, nil
 }
 
 var errNoHostInLine = fmt.Errorf("no host in line")
