@@ -1,13 +1,8 @@
 package main
 
 import (
-	"log"
-	"os"
-	"os/signal"
-	"syscall"
-
-	"github.com/miekg/dns"
 	"github.com/vmorsell/go-dns-proxy/cache"
+	"github.com/vmorsell/go-dns-proxy/proxy"
 )
 
 const (
@@ -16,15 +11,11 @@ const (
 )
 
 func main() {
-	cache := cache.New()
-	proxy := NewProxy(dnsServer, cache)
+	c := cache.New()
+	p := proxy.New(dnsServer, c)
 
-	dns.HandleFunc(".", proxy.handler)
-	go proxy.start("tcp", port)
-	go proxy.start("udp", port)
-
-	sig := make(chan os.Signal, 1)
-	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
-	s := <-sig
-	log.Printf("received %v signal", s)
+	p.Listen([]proxy.Port{
+		{Number: port, Protocol: "tcp"},
+		{Number: port, Protocol: "udp"},
+	})
 }
