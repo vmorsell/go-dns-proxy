@@ -13,6 +13,8 @@ type Blocker interface {
 	IsIPBlocked(ip string) bool
 	IsHostBlocked(host string) bool
 	GetBlockedReply(r *dns.Msg) *dns.Msg
+	BlockedIPsLength() int
+	BlockedHostsLength() int
 }
 
 type blocker struct {
