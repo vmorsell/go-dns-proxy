@@ -5,6 +5,7 @@ import "sync"
 type Blocker interface {
 	AddIP(ip string) error
 	AddHost(host string) error
+	AddHostsFiles(urls ...string) error
 	IsIPBlocked(ip string) bool
 	IsHostBlocked(host string) bool
 }
