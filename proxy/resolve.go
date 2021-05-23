@@ -9,11 +9,20 @@ import (
 	"github.com/vmorsell/go-dns-proxy/cache"
 )
 
-var ErrNoQuestion = fmt.Errorf("no question in message")
+var (
+	ErrNoQuestion = fmt.Errorf("no question in message")
+)
 
 func (p *proxy) Resolve(r *dns.Msg) (*dns.Msg, ResolveStrategy, error) {
 	if len(r.Question) == 0 {
 		return nil, NONE, ErrNoQuestion
+	}
+
+	for _, q := range r.Question {
+		if p.blocker.IsHostBlocked(q.Name[:len(q.Name)-1]) {
+			m := p.blocker.GetBlockedReply(r)
+			return m, BLOCKER, nil
+		}
 	}
 
 	res, err := p.resolveFromCache(r)

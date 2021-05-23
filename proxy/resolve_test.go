@@ -1,10 +1,12 @@
 package proxy
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/miekg/dns"
 	"github.com/stretchr/testify/require"
+	"github.com/vmorsell/go-dns-proxy/blocker"
 	"github.com/vmorsell/go-dns-proxy/cache"
 )
 
@@ -17,15 +19,31 @@ func TestResolve(t *testing.T) {
 		require.Equal(t, ErrNoQuestion, err)
 	})
 
-	t.Run("cached", func(t *testing.T) {
+	t.Run("blocked", func(t *testing.T) {
+		host := "blocked.se"
 		r := &dns.Msg{
 			Question: []dns.Question{
-				{Name: "x"},
+				{Name: fmt.Sprintf("%s.", host)},
 			},
 		}
 
 		p := &proxy{
-			cache: cache.New(),
+			blocker: blocker.New(),
+		}
+		p.blocker.AddHost(host)
+		_, strat, _ := p.Resolve(r)
+		require.Equal(t, BLOCKER, strat)
+	})
+	t.Run("cached", func(t *testing.T) {
+		r := &dns.Msg{
+			Question: []dns.Question{
+				{Name: "test.se."},
+			},
+		}
+
+		p := &proxy{
+			blocker: blocker.New(),
+			cache:   cache.New(),
 		}
 		key, _ := p.cache.Key(r)
 		p.cache.Set(key, r)
@@ -40,7 +58,7 @@ func TestResolve(t *testing.T) {
 			},
 		}
 
-		p := New("1.1.1.1:53", cache.New())
+		p := New("1.1.1.1:53", cache.New(), blocker.New())
 		_, strat, _ := p.Resolve(r)
 		require.Equal(t, SERVER, strat)
 	})

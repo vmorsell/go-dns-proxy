@@ -2,6 +2,7 @@ package proxy
 
 import (
 	"github.com/miekg/dns"
+	"github.com/vmorsell/go-dns-proxy/blocker"
 	"github.com/vmorsell/go-dns-proxy/cache"
 )
 
@@ -11,13 +12,15 @@ type Proxy interface {
 }
 
 type proxy struct {
-	server string
-	cache  cache.Cache
+	server  string
+	cache   cache.Cache
+	blocker blocker.Blocker
 }
 
-func New(server string, cache cache.Cache) Proxy {
+func New(server string, cache cache.Cache, blocker blocker.Blocker) Proxy {
 	return &proxy{
-		server: server,
-		cache:  cache,
+		server:  server,
+		cache:   cache,
+		blocker: blocker,
 	}
 }
