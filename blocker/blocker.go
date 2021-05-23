@@ -5,6 +5,7 @@ import "sync"
 type Blocker interface {
 	AddIP(ip string) error
 	AddHost(host string) error
+	IsIPBlocked(ip string) bool
 }
 
 type blocker struct {
