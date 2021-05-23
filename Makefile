@@ -5,8 +5,8 @@ all: lint test build
 lint:
 	staticcheck ./...
 
-.PHONY: get-linter
-get-linter:
+.PHONY: install-linter
+install-linter:
 	go get honnef.co/go/tools/cmd/staticcheck@latest
 
 .PHONY: test
